@@ -1,32 +1,36 @@
 package com.radlab.mondlyct.repo
 
 import com.radlab.mondlyct.models.Item
-import com.radlab.mondlyct.models.MondlyResponse
 import com.radlab.mondlyct.net.MondlyApiService
+import com.radlab.mondlyct.room.AppDatabase
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class CodeTaskRepository {
-    private val retrofit: Retrofit by lazy {
+class CodeTaskRepository(private val database: AppDatabase) {
+
+    private val mondlyApiService: MondlyApiService by lazy {
         Retrofit.Builder()
             .baseUrl("https://europe-west1-mondly-workflows.cloudfunctions.net/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+            .create(MondlyApiService::class.java)
     }
 
-    private val mondlyApi: MondlyApiService by lazy {
-        retrofit.create(MondlyApiService::class.java)
+    suspend fun getCodeTaskList(): Response<List<Item>> {
+        return database.codeTaskDao().getAllItems().takeIf { it.isNotEmpty() }
+            ?.let { Response.success(it) }
+            ?: fetchAndStoreCodeTasks()
     }
 
-    suspend fun getCodeTaskList() = mapToItemList(mondlyApi.getCodeTask())
-
-    private fun mapToItemList(response: Response<MondlyResponse>): Response<List<Item>> {
-        return if (response.isSuccessful && response.body() != null) {
-            val dataCollection = response.body()!!.dataCollection
-            val itemList = dataCollection.map { it.item }
-            Response.success(itemList)
+    private suspend fun fetchAndStoreCodeTasks(): Response<List<Item>> {
+        val response = mondlyApiService.getCodeTask()
+        return if (response.isSuccessful) {
+            response.body()?.dataCollection
+                ?.map { it.item }
+                ?.also { database.codeTaskDao().insertAllItems(it) }
+                .let { Response.success(it) }
         } else {
             Response.error(
                 response.code(),
@@ -34,5 +38,4 @@ class CodeTaskRepository {
             )
         }
     }
-
 }

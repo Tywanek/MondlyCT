@@ -15,11 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.radlab.mondlyct.models.Item
 import com.radlab.mondlyct.repo.CodeTaskRepository
+import com.radlab.mondlyct.room.AppDatabase
 import com.radlab.mondlyct.ui.theme.MondlyCTTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val viewModel = CodeTaskViewModel(codeTaskRepository = CodeTaskRepository())
+        val viewModel = CodeTaskViewModel(codeTaskRepository = CodeTaskRepository(AppDatabase.getInstance(this)))
         super.onCreate(savedInstanceState)
 
         setContent {
