@@ -24,6 +24,10 @@ class CodeTaskViewModel(private val codeTaskRepository: CodeTaskRepository) : Vi
     private val _state = MutableStateFlow<CodeTaskState>(CodeTaskState.Loading())
     val state: StateFlow<CodeTaskState> = _state
 
+    init {
+        processIntent(CodeTaskIntent.LoadData)
+    }
+
     fun processIntent(intent: CodeTaskIntent) {
         when (intent) {
             is CodeTaskIntent.LoadData -> fetchCodeTask()

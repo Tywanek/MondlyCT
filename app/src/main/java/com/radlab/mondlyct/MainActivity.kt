@@ -27,7 +27,6 @@ import com.radlab.mondlyct.models.Item
 import com.radlab.mondlyct.repo.CodeTaskRepository
 import com.radlab.mondlyct.room.AppDatabase
 import com.radlab.mondlyct.ui.theme.MondlyCTTheme
-import com.radlab.mondlyct.viemodels.CodeTaskIntent
 import com.radlab.mondlyct.viemodels.CodeTaskState
 import com.radlab.mondlyct.viemodels.CodeTaskViewModel
 
@@ -44,7 +43,6 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val codeTaskState = viewModel.state.collectAsState()
-                    viewModel.processIntent(CodeTaskIntent.LoadData)
                     CodeTaskView(codeTaskState.value)
                 }
             }
