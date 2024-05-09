@@ -26,17 +26,21 @@ class CodeTaskRepository(private val database: AppDatabase) {
     }
 
     private suspend fun fetchAndStoreCodeTasks(): Response<List<Item>> {
-        val response = mondlyApiService.getCodeTask()
-        return if (response.isSuccessful) {
-            response.body()?.dataCollection
-                ?.map { it.item }
-                ?.also { database.codeTaskDao().insertAllItems(it) }
-                .let { Response.success(it) }
-        } else {
-            Response.error(
-                response.code(),
-                response.errorBody() ?: "An error occurred".toResponseBody(null)
-            )
+        return try {
+            val response = mondlyApiService.getCodeTask()
+            return if (response.isSuccessful) {
+                response.body()?.dataCollection
+                    ?.map { it.item }
+                    ?.also { database.codeTaskDao().insertAllItems(it) }
+                    .let { Response.success(it) }
+            } else {
+                Response.error(
+                    response.code(),
+                    response.errorBody() ?: "An error occurred".toResponseBody(null)
+                )
+            }
+        } catch (e: Exception) {
+            Response.error(500, "An error occurred".toResponseBody(null))
         }
     }
 }
