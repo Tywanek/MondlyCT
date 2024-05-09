@@ -1,4 +1,4 @@
-package com.radlab.mondlyct
+package com.radlab.mondlyct.viemodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

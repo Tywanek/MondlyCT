@@ -19,7 +19,8 @@ class CodeTaskRepository(private val database: AppDatabase) {
     }
 
     suspend fun getCodeTaskList(): Response<List<Item>> {
-        return database.codeTaskDao().getAllItems().takeIf { it.isNotEmpty() }
+        return database.codeTaskDao().getAllItems()
+            .takeIf { it.isNotEmpty() }
             ?.let { Response.success(it) }
             ?: fetchAndStoreCodeTasks()
     }
